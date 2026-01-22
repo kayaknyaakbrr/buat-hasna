@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>FPS 2D Simple</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<style>
+  body {
+    margin: 0;
+    background: black;
+    overflow: hidden;
+    touch-action: none;
+  }
+  canvas {
+    display: block;
+    background: #111;
+  }
+
+  /* Tombol mobile */
+  .controls {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    display: grid;
+    grid-template-columns: 60px 60px 60px;
+    grid-template-rows: 60px 60px;
+    gap: 5px;
+  }
+  .btn {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    font-size: 20px;
+    text-align: center;
+    line-height: 60px;
+    border-radius: 10px;
+    user-select: none;
+  }
+  .shoot {
+    position: fixed;
+    bottom: 40px;
+    right: 30px;
+    width: 80px;
+    height: 80px;
+    background: red;
+    color: white;
+    font-size: 24px;
+    line-height: 80px;
+    text-align: center;
+    border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="game"></canvas>
+
+<!-- Kontrol HP -->
+<div class="controls">
+  <div></div>
+  <div class="btn" id="up">⬆</div>
+  <div></div>
+  <div class="btn" id="left">⬅</div>
+  <div class="btn" id="down">⬇</div>
+  <div class="btn" id="right">➡</div>
+</div>
+<div class="shoot" id="shoot">🔫</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+// Player
+const player = {
+  x: canvas.width / 2,
+  y: canvas.height / 2,
+  size: 25,
+  speed: 5
+};
+
+let bullets = [];
+let enemies = [];
+let score = 0;
+let gameOver = false;
+
+// Input
+const keys = {};
+addEventListener("keydown", e => keys[e.key] = true);
+addEventListener("keyup", e => keys[e.key] = false);
+canvas.addEventListener("click", shoot);
+
+// Touch buttons
+const touch = (id, key) => {
+  const btn = document.getElementById(id);
+  btn.addEventListener("touchstart", () => keys[key] = true);
+  btn.addEventListener("touchend", () => keys[key] = false);
+};
+touch("up", "w");
+touch("down", "s");
+touch("left", "a");
+touch("right", "d");
+document.getElementById("shoot").addEventListener("touchstart", shoot);
+
+function shoot() {
+  bullets.push({
+    x: player.x,
+    y: player.y,
+    r: 5,
+    speed: 8
+  });
+}
+
+// Spawn musuh
+setInterval(() => {
+  enemies.push({
+    x: Math.random() * canvas.width,
+    y: -30,
+    size: 25,
+    speed: 2
+  });
+}, 1000);
+
+// Game loop
+function update() {
+  if (gameOver) return;
+
+  // Gerak player
+  if (keys["w"]) player.y -= player.speed;
+  if (keys["s"]) player.y += player.speed;
+  if (keys["a"]) player.x -= player.speed;
+  if (keys["d"]) player.x += player.speed;
+
+  // Bullet
+  bullets.forEach(b => b.y -= b.speed);
+
+  // Enemy
+  enemies.forEach(e => e.y += e.speed);
+
+  // Collision
+  enemies.forEach((e, ei) => {
+    bullets.forEach((b, bi) => {
+      if (
+        b.x > e.x - e.size &&
+        b.x < e.x + e.size &&
+        b.y > e.y - e.size &&
+        b.y < e.y + e.size
+      ) {
+        enemies.splice(ei, 1);
+        bullets.splice(bi, 1);
+        score++;
+      }
+    });
+
+    // Player kena musuh
+    if (
+      player.x > e.x - e.size &&
+      player.x < e.x + e.size &&
+      player.y > e.y - e.size &&
+      player.y < e.y + e.size
+    ) {
+      gameOver = true;
+    }
+  });
+}
+
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // Player
+  ctx.fillStyle = "lime";
+  ctx.fillRect(player.x-12, player.y-12, player.size, player.size);
+
+  // Bullet
+  ctx.fillStyle = "yellow";
+  bullets.forEach(b => {
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+    ctx.fill();
+  });
+
+  // Enemy
+  ctx.fillStyle = "red";
+  enemies.forEach(e => {
+    ctx.fillRect(e.x-12, e.y-12, e.size, e.size);
+  });
+
+  // Score
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial";
+  ctx.fillText("Score: " + score, 20, 30);
+
+  if (gameOver) {
+    ctx.fillStyle = "white";
+    ctx.font = "40px Arial";
+    ctx.fillText("GAME OVER", canvas.width/2-120, canvas.height/2);
+  }
+}
+
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+
+</body>
+</html>

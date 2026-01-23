@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>pak ucok make cawet</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: black;
+  }
+  h1 {
+    position: absolute;
+    top: 15px;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+  }
+</style>
+</head>
+<body>
+
+<h1>pak ucok make cawet</h1>
+
+<script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+
+<script>
+// =====================
+// RENDERER
+// =====================
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// =====================
+// SCENE
+// =====================
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+
+// =====================
+// CAMERA
+// =====================
+const camera = new THREE.PerspectiveCamera(
+  60,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  100
+);
+camera.position.set(0, 4, 9);
+
+// =====================
+// LIGHT
+// =====================
+scene.add(new THREE.AmbientLight(0xffffff, 1));
+
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(6, 10, 6);
+scene.add(light);
+
+// =====================
+// MATERIAL
+// =====================
+const skin = new THREE.MeshStandardMaterial({
+  color: 0x7a4a23, // coklat gelap
+  roughness: 0.55
+});
+
+const shortsMat = new THREE.MeshStandardMaterial({
+  color: 0x1e90ff,
+  roughness: 0.4
+});
+
+const bookMat = new THREE.MeshStandardMaterial({
+  color: 0x8b0000,
+  roughness: 0.6
+});
+
+// =====================
+// HUMAN GROUP
+// =====================
+const human = new THREE.Group();
+
+// kepala
+const head = new THREE.Mesh(
+  new THREE.SphereGeometry(0.6, 32, 32),
+  skin
+);
+head.position.y = 4.4;
+human.add(head);
+
+// badan
+const chest = new THREE.Mesh(
+  new THREE.CylinderGeometry(1.4, 1.6, 2.5, 32),
+  skin
+);
+chest.position.y = 2.7;
+human.add(chest);
+
+// =====================
+// CELANA PENDEK BENTUK "V"
+// =====================
+const leftV = new THREE.Mesh(
+  new THREE.BoxGeometry(0.9, 0.7, 0.6),
+  shortsMat
+);
+leftV.position.set(-0.45, 1.3, 0);
+leftV.rotation.z = 0.35;
+human.add(leftV);
+
+const rightV = new THREE.Mesh(
+  new THREE.BoxGeometry(0.9, 0.7, 0.6),
+  shortsMat
+);
+rightV.position.set(0.45, 1.3, 0);
+rightV.rotation.z = -0.35;
+human.add(rightV);
+
+// =====================
+// KAKI
+// =====================
+const leftLeg = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.55, 0.55, 2.3, 32),
+  skin
+);
+leftLeg.position.set(-0.6, -0.2, 0);
+human.add(leftLeg);
+
+const rightLeg = leftLeg.clone();
+rightLeg.position.x = 0.6;
+human.add(rightLeg);
+
+// =====================
+// TANGAN KANAN + BUKU
+// =====================
+const rightArm = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.25, 0.25, 1.9, 32),
+  skin
+);
+rightArm.position.set(1.9, 2.7, 0);
+rightArm.rotation.z = -0.5;
+human.add(rightArm);
+
+const book = new THREE.Mesh(
+  new THREE.BoxGeometry(0.8, 1.1, 0.25),
+  bookMat
+);
+book.position.set(2.5, 2.0, 0);
+book.rotation.z = -0.5;
+human.add(book);
+
+// =====================
+// TANGAN KIRI
+// =====================
+const leftArm = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.25, 0.25, 1.9, 32),
+  skin
+);
+leftArm.position.set(-1.9, 2.7, 0);
+leftArm.rotation.z = 0.3;
+human.add(leftArm);
+
+// =====================
+// ADD TO SCENE
+// =====================
+scene.add(human);
+
+// =====================
+// ANIMASI
+// =====================
+let t = 0;
+function animate() {
+  requestAnimationFrame(animate);
+
+  t += 0.02;
+  human.position.y = Math.sin(t) * 0.05; // napas
+  human.rotation.y += 0.003;             // rotasi pelan
+
+  renderer.render(scene, camera);
+}
+animate();
+
+// =====================
+// RESPONSIVE
+// =====================
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+
+</body>
+</html>

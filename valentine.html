@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VALENTINE DAYS ❤️</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #fff0f3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            width: 90%;
+        }
+
+        .active {
+            display: flex;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .cat-gif {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            border-radius: 20px;
+        }
+
+        h2 { color: #ff4d6d; margin: 10px 0; font-size: 24px; }
+        p { font-size: 18px; color: #555; line-height: 1.5; }
+
+        .btn-container {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            min-height: 100px;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.2);
+            transition: transform 0.2s;
+        }
+
+        #yesBtn { background: #ff4d6d; color: white; z-index: 10; }
+        #noBtn { background: #bdc3c7; color: white; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        .heart {
+            position: absolute;
+            pointer-events: none;
+            animation: floatUp 2s linear forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-200px) scale(1.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ЕКРАН 1: Привіт -->
+    <div id="screen1" class="screen active" onclick="showScreen(2)">
+        <img class="cat-gif" src="1.gif" alt="Cat">
+        <h2> BUAT MY PACARRR 💌</h2>
+        <p>coba klik layarnya deh</p>
+    </div>
+
+    <!-- ЕКРАН 2: Твоє послання -->
+    <div id="screen2" class="screen">
+        <img class="cat-gif" src="2.jpg" alt="Cat Love">
+        <h2>HAPPY VALENTINE DAY ❤️</h2>
+        <p>
+            aku cuman mau bilang, kok bisa sih ada cewe yang secantik, segemes, seimut dan seperfect kamu... like EOEJWIISISJAKAJAOIWWKKWKAIAJ ILOVEU<br>
+            U MAKE MY WORLD SO COLORFUL! ✨
+        </p>
+        <button onclick="showScreen(3)" style="background: #ff8fa3; color: white; margin-top: 20px;">pencet ini 🌸</button>
+    </div>
+
+    <!-- ЕКРАН 3: Питання -->
+    <div id="screen3" class="screen">
+        <img id="questionCat" class="cat-gif" src= " 3.gif" alt="Cat Ask">
+        <h2 id="questionTitle">KAMU SAYANG AKU GAAK? 🥺</h2>
+        <div class="btn-container">
+            <button id="yesBtn" onclick="celebrate()">JELASS! 🥰</button>
+            <button id="noBtn" onclick="moveNo()" onmouseover="moveNo()">GAKKK</button> </button>
+        </div>
+    </div>
+
+    <!-- ЕКРАН 4: Фінал -->
+    <div id="finalScreen" class="screen">
+        <img class="cat-gif" src="4.gif" alt="Cat Happy">
+        <h2>YESSS! ILOVEUUU SO MUCH ❤️</h2>
+        <p>U ALWAYS BE MY FAVORITE PERSON! I PROMISE THAT </p>
+    </div>
+
+    <script>
+        function showScreen(num) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen' + num).classList.add('active');
+            spawnHearts();
+        }
+
+        let yesScale = 1;
+        let noClicks = 0;
+
+        function moveNo() {
+            const noBtn = document.getElementById('noBtn');
+            const yesBtn = document.getElementById('yesBtn');
+            
+            // Збільшуємо кнопку "Так"
+            yesScale += 0.4;
+            yesBtn.style.transform = `scale(${yesScale})`;
+
+            // Рухаємо кнопку "Ні" у випадкове місце
+            const x = Math.random() * (window.innerWidth - 100);
+            const y = Math.random() * (window.innerHeight - 50);
+            
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = x + 'px';
+            noBtn.style.top = y + 'px';
+
+            // Змінюємо текст після кількох спроб
+            noClicks++;
+            if(noClicks > 3) {
+                document.getElementById('questionTitle').innerText = "Ну натисни вже ТАК! 😤❤️";
+            }
+        }
+
+        function celebrate() {
+            document.getElementById('screen3').classList.remove('active');
+            document.getElementById('finalScreen').classList.add('active');
+            
+            // Запускаємо багато сердечок
+            setInterval(spawnHearts, 300);
+        }
+
+        function spawnHearts() {
+            for (let i = 0; i < 8; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.innerText = ['❤️', '💖', '💝', '🌸', '✨'][Math.floor(Math.random() * 5)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.top = '100vh';
+                heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                heart.style.left = Math.random() * 100 + 'vw';
+                
+                document.body.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 2000);
+            }
+        }
+    </script>
+</body>
+</html>

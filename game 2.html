@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catch the Box Pro</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: white;
+    text-align: center;
+}
+
+.game-container {
+    background: rgba(0,0,0,0.25);
+    padding: 20px;
+    border-radius: 15px;
+    width: 320px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+#game-area {
+    position: relative;
+    width: 100%;
+    height: 250px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 15px;
+}
+
+.box {
+    width: 40px;
+    height: 40px;
+    background: #ff4757;
+    position: absolute;
+    border-radius: 10px;
+    cursor: pointer;
+    animation: popIn 0.25s ease;
+}
+
+@keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.box.clicked {
+    animation: popOut 0.2s forwards;
+}
+
+@keyframes popOut {
+    to { transform: scale(1.6); opacity: 0; }
+}
+
+.particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: explode 0.5s forwards;
+}
+
+@keyframes explode {
+    to {
+        transform: translate(var(--x), var(--y));
+        opacity: 0;
+    }
+}
+
+button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: white;
+    color: #333;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.info {
+    margin-top: 8px;
+    font-size: 18px;
+}
+</style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>Catch the Box</h1>
+    <button onclick="startGame()">Start</button>
+
+    <div class="info">Score: <span id="score">0</span></div>
+    <div class="info">Time: <span id="time">30</span>s</div>
+
+    <div id="game-area"></div>
+</div>
+
+<!-- SOUND EFFECTS -->
+<audio id="clickSound" src="game start.mp3"></audio>
+<audio id="gameOverSound" src="game over.mp3"></audio>
+<audio id="bgMusic" src="music.mp3" loop></audio>
+
+<script>
+let score = 0;
+let timeLeft = 30;
+let gameInterval;
+let timer;
+
+const clickSound = document.getElementById("clickSound");
+const gameOverSound = document.getElementById("gameOverSound");
+const bgMusic = document.getElementById("bgMusic");
+
+function startGame() {
+    score = 0;
+    timeLeft = 30;
+    document.getElementById("score").textContent = score;
+    document.getElementById("time").textContent = timeLeft;
+    document.getElementById("game-area").innerHTML = "";
+
+    bgMusic.volume = 0.3;
+    bgMusic.play();
+
+    spawnBox();
+    gameInterval = setInterval(spawnBox, 700);
+
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("time").textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+            endGame();
+        }
+    }, 1000);
+}
+
+function endGame(){
+    clearInterval(gameInterval);
+    clearInterval(timer);
+    document.getElementById("game-area").innerHTML = "";
+    bgMusic.pause();
+    gameOverSound.play();
+    alert("Game Over! Skor kamu: " + score);
+}
+
+function spawnBox() {
+    const gameArea = document.getElementById("game-area");
+    gameArea.innerHTML = "";
+
+    const box = document.createElement("div");
+    box.classList.add("box");
+
+    const maxX = gameArea.clientWidth - 40;
+    const maxY = gameArea.clientHeight - 40;
+
+    box.style.left = Math.random() * maxX + "px";
+    box.style.top = Math.random() * maxY + "px";
+
+    box.onclick = (e) => {
+        clickSound.currentTime = 0;
+        clickSound.play();
+        score++;
+        document.getElementById("score").textContent = score;
+
+        box.classList.add("clicked");
+        createParticles(e.offsetX + box.offsetLeft, e.offsetY + box.offsetTop);
+
+        setTimeout(spawnBox, 120);
+    };
+
+    gameArea.appendChild(box);
+}
+
+function createParticles(x, y){
+    const gameArea = document.getElementById("game-area");
+
+    for(let i=0;i<8;i++){
+        const p = document.createElement("div");
+        p.className = "particle";
+        p.style.left = x + "px";
+        p.style.top = y + "px";
+
+        const angle = Math.random()*360;
+        const distance = 30 + Math.random()*20;
+
+        const xMove = Math.cos(angle) * distance + "px";
+        const yMove = Math.sin(angle) * distance + "px";
+
+        p.style.setProperty('--x', xMove);
+        p.style.setProperty('--y', yMove);
+
+        gameArea.appendChild(p);
+
+        setTimeout(()=>p.remove(), 500);
+    }
+}
+</script>
+
+</body>
+</html>
